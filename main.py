@@ -38,4 +38,30 @@ def cantidad_filmaciones_mes(Mes: str):
         cantidad_de_peliculas = dataset[dataset['release_date'].dt.month_name() == english_month].shape[0]
         
         return f"{cantidad_de_peliculas} películas fueron estrenadas en el mes de {Mes}"
-    
+
+@app.get('/cantidad_filmaciones_dia')
+def cantidad_filmaciones_dia(Dia: str):
+
+    dias_dict = {
+    'lunes': 'Monday',
+    'martes': 'Tuesday',
+    'miercoles': 'Wednesday',
+    'jueves': 'Thursday',
+    'viernes': 'Friday',
+    'sabado': 'Saturday',
+    'domingo': 'Sunday'
+    }
+
+    # Convertir el nombre del día a inglés
+    if Dia.lower() in dias_dict:
+        english_day = dias_dict[Dia.lower()]
+    else:
+        return {'error': f'Día {Dia} no es válido.'}
+
+    # Convertir release_date a datetime
+    dataset['release_date'] = pd.to_datetime(dataset['release_date'], errors='coerce')
+
+    # Filtrar el dataset por el día de la semana
+    cantidad_de_filmaciones = dataset[dataset['release_date'].dt.day_name() == english_day].shape[0]
+
+    return f"{cantidad_de_filmaciones} peliculas fueron estrenadas el dia {Dia}"  
