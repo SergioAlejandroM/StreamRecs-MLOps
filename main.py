@@ -65,3 +65,18 @@ def cantidad_filmaciones_dia(Dia: str):
     cantidad_de_filmaciones = dataset[dataset['release_date'].dt.day_name() == english_day].shape[0]
 
     return f"{cantidad_de_filmaciones} peliculas fueron estrenadas el dia {Dia}"  
+
+@app.get('/score_titulo')
+def score_titulo(titulo_pelicula: str):
+    # Filtrar el dataset por el título de la filmación
+    filmacion = dataset[dataset['title'].str.lower() == titulo_pelicula.lower()]
+    
+    if filmacion.empty:
+        return {"error": f"No se encontró la filmación con el título {titulo_pelicula}."}
+
+    # Obtener los datos de la filmación
+    titulo = filmacion.iloc[0]['title']
+    estreno = filmacion.iloc[0]['release_year']
+    score = filmacion.iloc[0]['popularity']  # o 'score', dependiendo de cómo esté nombrada la columna en tu dataset
+
+    return f"La película {titulo} fue estrenada en el año {estreno} con un score/popularidad de {score}"
