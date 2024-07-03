@@ -80,3 +80,22 @@ def score_titulo(titulo_pelicula: str):
     score = filmacion.iloc[0]['popularity']  # o 'score', dependiendo de cómo esté nombrada la columna en tu dataset
 
     return f"La película {titulo} fue estrenada en el año {estreno} con un score/popularidad de {score}"
+
+@app.get('/votos_titulo')
+def votos_titulo(titulo_de_la_filmacion: str):
+    # Filtrar el dataset por el título de la filmación
+    filmacion = dataset[dataset['title'].str.lower() == titulo_de_la_filmacion.lower()]
+    
+    if filmacion.empty:
+        return {"error": f"No se encontró la filmación con el título {titulo_de_la_filmacion}."}
+
+    # Obtener los datos de la filmación
+    titulo = filmacion.iloc[0]['title']
+    estreno = filmacion.iloc[0]['release_year']
+    votos = filmacion.iloc[0]['vote_count']
+    promedio_votos = filmacion.iloc[0]['vote_average']
+
+    if votos < 2000:
+        return f"La película {titulo} fue estrenada en el año {estreno}. La misma no cuenta con al menos 2000 valoraciones, por lo que no se devuelve ningún valor."
+
+    return f"La película {titulo} fue estrenada en el año {estreno}. La misma cuenta con un total de {votos} valoraciones, con un promedio de {promedio_votos}."
