@@ -125,6 +125,40 @@ def get_actor(nombre_actor):
     
     return f"El actor {nombre_actor.title()} ha participado en {total_movies} filmaciones, el mismo ha consegido un retorno de {total_return} con un promedio de {average_return} por filmacion "
 
+@app.get('/get_director')
+def get_director(nombre_director: str):
+    nombre_director = nombre_director.strip().lower()  # Normalizar el nombre del director
+    
+    # Filtrar las películas en las que ha trabajado el director
+    director_movies = credits_data[credits_data['crew'].apply(lambda x: isinstance(x, str) and nombre_director in x.lower())]
+    
+    if director_movies.empty:
+        return {"error": f"Director '{nombre_director.title()}' no encontrado en ninguna película."}
+    
+    # Unir con el dataset de películas para obtener los datos necesarios
+    director_movie_ids = director_movies['id']
+    director_movies_data = dataset[dataset['id'].isin(director_movie_ids)]
+    
+    # Calcular métricas
+    total_return = director_movies_data['return'].sum()
+    movie_details = director_movies_data[['title', 'release_date', 'return', 'budget', 'revenue']].to_dict(orient='records')
+    
+    # Formatear los nombres de las películas
+    formatted_movie_details = []
+    for movie in movie_details:
+        movie['title'] = movie['title'].title()  # Asegura que el título esté capitalizado
+        formatted_movie_details.append(movie)
+    
+    return {
+        "director": nombre_director.title(),  # Devolver el nombre del director capitalizado
+        "total_return": total_return,
+        "movies": formatted_movie_details
+    }
+
+
+
+
+    
 
     
 
