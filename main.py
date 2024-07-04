@@ -4,7 +4,7 @@ import pandas as pd
 app= FastAPI()
 
 dataset = pd.read_csv("./Data/movies_dataset_clean.csv")
-
+credits_data = pd.read_csv("./Data/credits_clean.csv")
 
 @app.get('/cantidad_filmaciones_mes')
 def cantidad_filmaciones_mes(Mes: str):
@@ -99,3 +99,32 @@ def votos_titulo(titulo_de_la_filmacion: str):
         return f"La película {titulo} fue estrenada en el año {estreno}. La misma no cuenta con al menos 2000 valoraciones, por lo que no se devuelve ningún valor."
 
     return f"La película {titulo} fue estrenada en el año {estreno}. La misma cuenta con un total de {votos} valoraciones, con un promedio de {promedio_votos}."
+
+
+@app.get('/get_actor')
+def get_actor(nombre_actor):
+    
+    nombre_actor = nombre_actor.lower()
+    
+    # Filtrar las películas en las que ha participado el actor
+    actor_movies = credits_data[credits_data['cast'].apply(lambda x: nombre_actor in x.lower())]
+    
+    if actor_movies.empty:
+        return {"error": f"Actor '{nombre_actor}' no encontrado en ninguna película."}
+    
+    # Obtener los IDs de las películas en las que ha participado el actor
+    movie_ids = actor_movies['id'].tolist()
+    
+    # Filtrar el otro dataset por las películas en las que ha participado el actor
+    actor_movies_return = dataset[dataset['id'].isin(movie_ids)]
+    
+    # Calcular métricas
+    total_movies = len(actor_movies_return)
+    total_return = actor_movies_return['return'].sum()
+    average_return = total_return / total_movies if total_movies > 0 else 0
+    
+    return f"El actor {nombre_actor.title()} ha participado en {total_movies} filmaciones, el mismo ha consegido un retorno de {total_return} con un promedio de {average_return} por filmacion "
+
+
+    
+
