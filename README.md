@@ -12,9 +12,9 @@ Este proyecto implementa un sistema de recomendación de películas utilizando t
 - **EDA.ipynb**: Notebook que realiza el análisis exploratorio de datos.
 - **Transformaciones.ipynb**: Notebook que realiza las transformaciones de los datos.
 - **credits.ipynb**: Notebook que maneja los datos de créditos de películas.
-- **main.py**: Script principal que contiene la lógica del sistema de recomendación.
+- **main.py**: Script principal que contiene la lógica del sistema de recomendación y funciones requeridas para el proyecto.
 - **requirements.txt**: Archivo que lista las dependencias del proyecto.
-- **data_profile.html**: Reporte de perfilamiento de datos.
+- **data_profile.html**: Reporte de perfilamiento de datos.(Archivo que se crea al ejecutar el codigo en EDA.ipynb)
 
 ### Instalación
 
