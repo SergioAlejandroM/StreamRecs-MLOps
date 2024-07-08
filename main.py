@@ -5,7 +5,7 @@ from sklearn.metrics.pairwise import linear_kernel
 
 app= FastAPI()
 
-dataset = pd.read_csv("./Data/movies_dataset_clean.csv")
+dataset = pd.read_csv("./Data/movies_dataset_clean.csv", nrows= 10000)
 credits_data = pd.read_csv("./Data/credits_clean.csv")
 
 @app.get('/cantidad_filmaciones_mes')
