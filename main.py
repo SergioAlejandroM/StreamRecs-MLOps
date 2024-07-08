@@ -1,5 +1,7 @@
-from fastapi import FastAPI, HTTPException  # type: ignore
+from fastapi import FastAPI  # type: ignore
 import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 
 app= FastAPI()
 
@@ -155,10 +157,40 @@ def get_director(nombre_director: str):
         "movies": formatted_movie_details
     }
 
+# Calcular la matriz TF-IDF
+tfidf = TfidfVectorizer(stop_words='english')
+dataset['title'] = dataset['title'].fillna('')
+tfidf_matrix = tfidf.fit_transform(dataset['title'])
 
+# Calcular la similitud del coseno entre todas las películas
+cosine_sim = linear_kernel(tfidf_matrix, tfidf_matrix)
 
+# Crear un índice inverso que mapea títulos de películas a los índices de DataFrame
+indices = pd.Series(dataset.index, index=dataset['title'].str.lower()).drop_duplicates()
 
+@app.get('/recomendacion')
+def recomendacion(titulo: str):
+    # Convertir el título ingresado a minúsculas para la búsqueda
+    titulo_lower = titulo.lower()
     
-
+    # Verificar si el título existe en el índice
+    if titulo_lower not in indices:
+        return {"error": f"Película '{titulo}' no encontrada."}
     
+    # Obtener el índice de la película que coincide con el título
+    idx = indices[titulo_lower]
 
+    # Obtener las puntuaciones de similitud de todas las películas con esa película
+    sim_scores = list(enumerate(cosine_sim[idx]))
+
+    # Ordenar las películas en función de las puntuaciones de similitud
+    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+
+    # Obtener las puntuaciones de las 5 películas más similares
+    sim_scores = sim_scores[1:6]
+
+    # Obtener los índices de las películas
+    movie_indices = [i[0] for i in sim_scores]
+
+    # Devolver los títulos de las 5 películas más similares (manteniendo la capitalización original)
+    return dataset['title'].iloc[movie_indices].tolist()
